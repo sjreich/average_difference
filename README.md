@@ -10,6 +10,10 @@ For instance, the average distance for a set of points `[1, 2, 3]` would be 4/3 
 ```
 and the sum of those differences if 4.
 
-What's in here shows a brute force approach, which runs in O(n) time.  It also shows a smarter approach, which runs in O(n log(n)) time.
+The brute force approach would be to find the distance between every pair of values, and take the average of those.  That runs in O(n) time.
 
-Roughly, the idea is: instead of calculating every distance directly, instead create clusters of values, and then calculate the distances between those clusters.
+The smarter approach, very roughly, is to create clusters of values and calculate the distances between those clusters.
+
+In a bit more detail, you only directly calculate the distance between each point and one of its neighbors.  Then you treat each pair of points as a cluster, and find the distance to the next neighboring cluster.  Then you do the same with each cluster of four points, then eight, and so on until you've got them all in a single cluster.
+
+This runs in O(n log(n)) time.
