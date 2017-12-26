@@ -1,4 +1,6 @@
 require 'pry'
+require 'active_support'
+require 'active_support/core_ext/numeric/conversions'
 
 class AverageDistance
   attr_reader :numbers
@@ -7,7 +9,7 @@ class AverageDistance
     @numbers = numbers.to_a.sort
   end
 
-  def by_brute_force
+  def brute_force
     combinations = numbers.combination(2)
 
     total_distance = combinations.reduce(0) do |total, (first_value, second_value)|
@@ -18,7 +20,7 @@ class AverageDistance
     total_distance.to_f / combinations.size
   end
 
-  def the_fast_way
+  def clustering
     restructured_input = numbers.map do |i| 
       {
         count: 1,
@@ -28,6 +30,16 @@ class AverageDistance
     end
     total_distance = fast_total_distance(restructured_input)[:distance]
     total_distance.to_f / numbers.combination(2).size
+  end
+
+  def snowball
+    bunch_a_stuff = numbers.reduce(Hash.new(0)) do |memo, number|
+      memo[:distance] += memo[:count] * (number - memo[:value])
+      memo[:value] = (memo[:value] * memo[:count] + number).to_f / (memo[:count] + 1)
+      memo[:count] += 1
+      memo
+    end
+    bunch_a_stuff[:distance].to_f / numbers.combination(2).size
   end
 
   private
@@ -61,7 +73,26 @@ class AverageDistance
   end
 end
 
-puts 'The Fast Way'
+puts "\n\n"
+puts 'Brute Force'
+[
+  10,
+  100,
+  1000,
+  10000,
+].each do |size|
+  input = Array.new(size) { rand(1...size) }
+  puts '---------'
+  puts "Input: #{input.size.to_s(:human).downcase} random numbers"
+  t1 = Time.now
+  result = AverageDistance.new(input).brute_force
+  t2 = Time.now
+  puts "Time: #{(t2 - t1).to_s(:human)} seconds"
+  puts "Average Difference: #{result.round(2).to_s(:delimited)}"
+end
+
+puts "\n\n"
+puts 'Clustering'
 [
   10,
   100,
@@ -70,35 +101,35 @@ puts 'The Fast Way'
   100000,
   1000000,
 ].each do |size|
-  input = 1..size
+  input = Array.new(size) { rand(1...size) }
   puts '---------'
-  puts "Input Size: #{input.size}"
+  puts "Input: #{input.size.to_s(:human).downcase} random numbers"
   t1 = Time.now
-  result = AverageDistance.new(input).the_fast_way
+  result = AverageDistance.new(input).clustering
   t2 = Time.now
-  puts "Time: #{t2 - t1} seconds"
-  puts "Average Distance: #{result}"
+  puts "Time: #{(t2 - t1).to_s(:human)} seconds"
+  puts "Average Difference: #{result.round(2).to_s(:delimited)}"
 end
 
 puts "\n\n"
-
-puts 'Brute Force'
+puts 'Snowball'
 [
   10,
   100,
   1000,
   10000,
+  100000,
+  1000000,
+  10000000,
 ].each do |size|
-  input = 1..size
+  input = Array.new(size) { rand(1...size) }
   puts '---------'
-  puts "Input Size: #{input.size}"
+  puts "Input: #{input.size.to_s(:human).downcase} random numbers"
   t1 = Time.now
-  result = AverageDistance.new(input).by_brute_force
+  result = AverageDistance.new(input).snowball
   t2 = Time.now
-  puts "Time: #{t2 - t1} seconds"
-  puts "Average Distance: #{result}"
+  puts "Time: #{(t2 - t1).to_s(:human)} seconds"
+  puts "Average Difference: #{result.round(2).to_s(:delimited)}"
 end
-
-
 
 
