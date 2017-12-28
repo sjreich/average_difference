@@ -33,13 +33,13 @@ class AverageDistance
   end
 
   def snowball
-    bunch_a_stuff = numbers.reduce(Hash.new(0)) do |memo, number|
-      memo[:distance] += memo[:count] * (number - memo[:value])
-      memo[:value] = (memo[:value] * memo[:count] + number).to_f / (memo[:count] + 1)
+    result = numbers.reduce(Hash.new(0)) do |memo, number|
+      memo[:distance] += memo[:count] * number - memo[:sum]
+      memo[:sum] += number
       memo[:count] += 1
       memo
     end
-    bunch_a_stuff[:distance].to_f / numbers.combination(2).size
+    result[:distance].to_f / numbers.combination(2).size
   end
 
   private
